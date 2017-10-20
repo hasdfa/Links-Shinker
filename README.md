@@ -1,4 +1,4 @@
-##**Href Shrinker**
+## **Links Shrinker**
 
 **Project, which make long links shorter**
 
