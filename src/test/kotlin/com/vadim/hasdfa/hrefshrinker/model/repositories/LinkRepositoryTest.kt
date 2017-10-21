@@ -23,7 +23,9 @@ open class LinkRepositoryTest: AbstractRepositoryTest() {
 
     @Before
     public fun init() {
-        addSamples()
+        repository.insert(Link("https://google.com", 999_996))
+        repository.save(Link("https://apple.com", 999_997))
+        repository.save(Link("http://avecp.com.ua", 999_998))
 //        Mockito.`when`(repository.findById(LINK_NOT_FOUND)).thenReturn(Optional.empty())
 //        Mockito.`when`(repository.findById(LINK_1_ID)).thenReturn(Optional.of(Link(LINK_1_TEXT, LINK_1_ID)))
 //        Mockito.`when`(repository.insert(Link(LINK_TBS_TEXT))).thenReturn(Link(LINK_TBS_TEXT))
@@ -32,20 +34,7 @@ open class LinkRepositoryTest: AbstractRepositoryTest() {
 
     @After
     public fun deinit() {
-        repository.deleteAll()
-    }
-
-    fun addSamples(){
-        repository.insert(Link("https://google.com", 999_996))
-        repository.save(Link("https://apple.com", 999_997))
-        repository.save(Link("http://avecp.com.ua", 999_998))
-    }
-
-    public fun removeSamples() {
-        repository.deleteById(999_996)
-        repository.deleteById(999_997)
-        repository.deleteById(999_998)
-        repository.deleteById(999_999)
+        //repository.deleteAll()
     }
 
     @Test
