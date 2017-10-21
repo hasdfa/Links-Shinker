@@ -12,15 +12,13 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.context.annotation.PropertySource
 import org.springframework.http.HttpStatus
-import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.view
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup
 import org.springframework.web.context.WebApplicationContext
 
@@ -49,8 +47,8 @@ class RedirectControllerTest {
     fun init() {
         MockitoAnnotations.initMocks(this)
 
-        Mockito.`when`(service.getLink(PATH)).thenReturn(KeyMapperService.Get.Link(HEADER_VALUE))
         Mockito.`when`(service.getLink(Mockito.anyString())).thenReturn(KeyMapperService.Get.NotFound(""))
+        Mockito.`when`(service.getLink(PATH)).thenReturn(KeyMapperService.Get.Link(HEADER_VALUE))
     }
 
     @Test
@@ -71,10 +69,10 @@ class RedirectControllerTest {
                 .andExpect(status().`is`(HttpStatus.NOT_FOUND.value()))
     }
 
-//    @Test fun homeWorksFine() {
-//        mockMvc.perform(get("/"))
-//                .andExpect(MockMvcResultMatchers.view().name("home"))
-//    }
+    @Test fun homeWorksFine() {
+        mockMvc.perform(get("/"))
+                .andExpect(view().name("index"))
+    }
 
 
     companion object {

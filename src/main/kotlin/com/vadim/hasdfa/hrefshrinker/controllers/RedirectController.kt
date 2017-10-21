@@ -2,7 +2,6 @@ package com.vadim.hasdfa.hrefshrinker.controllers
 
 import com.vadim.hasdfa.hrefshrinker.service.DefaultKeyMapperService
 import com.vadim.hasdfa.hrefshrinker.service.KeyMapperService
-import org.jetbrains.annotations.TestOnly
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import java.util.*
 import javax.servlet.http.HttpServletResponse
 
 /**
@@ -23,6 +21,9 @@ class RedirectController {
     val service: KeyMapperService by lazy {
         DefaultKeyMapperService()
     }
+
+    @GetMapping("/")
+    fun homeHandler() = "index"
 
     @GetMapping("/{key}")
     fun keyHandler(@PathVariable("key") key: String, response: HttpServletResponse) {

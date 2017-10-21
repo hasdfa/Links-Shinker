@@ -4,11 +4,9 @@ package com.vadim.hasdfa.hrefshrinker.service
 import com.vadim.hasdfa.hrefshrinker.model.Link
 import com.vadim.hasdfa.hrefshrinker.model.repositories.LinkRepository
 import com.vadim.hasdfa.hrefshrinker.service.KeyMapperService.Get
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.atomic.AtomicLong
-import javax.annotation.PostConstruct
 
 /**
  * Created by rakshavadim on 20.10.2017.
@@ -24,11 +22,14 @@ class DefaultKeyMapperService: KeyMapperService {
         DefaultKeyConverterService()
     }
 
-    val sequence = AtomicLong(10000000L)
+    val sequence: AtomicLong
+    get() {
+        return AtomicLong(10000000L + repository.count())
+    }
 
     @Transactional
     override fun add(link: String): String {
-        val id = sequence.getAndIncrement()
+        val id = sequence.get()
         val key = converter.idToKey(id)
 
         repository.insert(Link(link, id))

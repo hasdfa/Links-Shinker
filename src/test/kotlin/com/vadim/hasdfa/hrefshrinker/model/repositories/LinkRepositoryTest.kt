@@ -1,25 +1,13 @@
 package com.vadim.hasdfa.hrefshrinker.model.repositories
 
-import com.github.springtestdbunit.annotation.DatabaseOperation
-import com.github.springtestdbunit.annotation.DatabaseSetup
-import com.github.springtestdbunit.annotation.DatabaseTearDown
-import com.mongodb.MongoClient
-import com.mongodb.client.MongoCollection
 import com.vadim.hasdfa.hrefshrinker.model.AbstractRepositoryTest
 import com.vadim.hasdfa.hrefshrinker.model.Link
-import org.bson.Document
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
-import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.web.WebAppConfiguration
 import java.util.*
 
@@ -65,13 +53,14 @@ open class LinkRepositoryTest: AbstractRepositoryTest() {
         val got: Optional<Link> = repository.findById(LINK_1_ID)
         assertThat(got.isPresent, Matchers.equalTo(true))
         val link = got.get()
-
-        assertThat(link.link, Matchers.equalTo(LINK_1_TEXT))
-        assertThat(link.id, Matchers.equalTo(LINK_1_ID))
+        assertThat(link, Matchers.equalTo(Link(LINK_1_TEXT, LINK_1_ID)))
     }
 
     @Test
     fun findOneNotExisting() {
+        println(repository.count())
+        println(repository.findAll())
+
         val got: Optional<Link> = repository.findById(LINK_NOT_FOUND)
         assertThat(got.isPresent, Matchers.equalTo(false))
     }
@@ -90,7 +79,7 @@ open class LinkRepositoryTest: AbstractRepositoryTest() {
         const val DATA_SET = "classpath:datasets/link-table.xml"
 
         private val LINK_NOT_FOUND: Long = 1L
-        private val LINK_1_ID: Long = 999_998L
+        private val LINK_1_ID: Long = 999_999L
         private val LINK_2_ID: Long = 999_999L
         private val LINK_TBS_TEXT: String = "http://www.ru"
         private val LINK_1_TEXT: String = "http://avecp.com.ua"

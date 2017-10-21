@@ -5,8 +5,6 @@ import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import com.vadim.hasdfa.hrefshrinker.model.Link
-import com.vadim.hasdfa.hrefshrinker.service.DefaultKeyMapperService
-import org.bson.BSON
 import org.bson.Document
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Page
@@ -20,6 +18,7 @@ import java.util.*
  */
 @Component
 class LinkRepository(): Repository {
+
     private final val mongoClient: MongoClient = MongoClient()
     private final val database: MongoDatabase
     private final val collection: MongoCollection<Document>
