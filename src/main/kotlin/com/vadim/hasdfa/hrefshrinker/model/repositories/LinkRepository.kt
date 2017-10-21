@@ -17,20 +17,20 @@ import java.util.*
  * Created by rakshavadim on 21.10.2017.
  */
 @Component
-class LinkRepository(): Repository {
+class LinkRepository: Repository {
 
     private final val mongoClient: MongoClient = MongoClient()
     private final val database: MongoDatabase
     private final val collection: MongoCollection<Document>
 
+    constructor() {
+        database = mongoClient.getDatabase("links-shrinker")
+        collection = database.getCollection(collectionName)
+    }
+
     final var collectionName = "links"
     constructor(collection: String): this() {
         collectionName = collection
-    }
-
-    init {
-        database = mongoClient.getDatabase("links-shrinker")
-        collection = database.getCollection(collectionName)
     }
 
     private fun read(results: FindIterable<HashMap<*, *>>): List<Link> {
