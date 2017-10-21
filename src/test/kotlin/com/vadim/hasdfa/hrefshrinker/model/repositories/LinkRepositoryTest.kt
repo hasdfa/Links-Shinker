@@ -34,7 +34,7 @@ open class LinkRepositoryTest: AbstractRepositoryTest() {
 
     @After
     public fun deinit() {
-        //repository.deleteAll()
+        repository.deleteAll()
     }
 
     @Test

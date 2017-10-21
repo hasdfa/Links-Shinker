@@ -2,10 +2,7 @@ package com.vadim.hasdfa.hrefshrinker.model.repositories
 
 import com.mongodb.MongoClient
 import com.mongodb.client.FindIterable
-import com.mongodb.client.MongoCollection
-import com.mongodb.client.MongoDatabase
 import com.vadim.hasdfa.hrefshrinker.model.Link
-import org.bson.Document
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -17,21 +14,16 @@ import java.util.*
  * Created by rakshavadim on 21.10.2017.
  */
 @Component
-class LinkRepository: Repository {
+class LinkRepository(): Repository {
 
-    private final val mongoClient: MongoClient = MongoClient()
-    private final val database: MongoDatabase
-    private final val collection: MongoCollection<Document>
-
-    constructor() {
-        database = mongoClient.getDatabase("links-shrinker")
-        collection = database.getCollection(collectionName)
-    }
-
-    final var collectionName = "links"
+    private final var collectionName = "links"
     constructor(collection: String): this() {
         collectionName = collection
     }
+
+    private final val collection = MongoClient()
+            .getDatabase("links-shrinker")
+            .getCollection(collectionName)
 
     private fun read(results: FindIterable<HashMap<*, *>>): List<Link> {
         return results.toList().map {
