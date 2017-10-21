@@ -1,18 +1,24 @@
 package com.vadim.hasdfa.hrefshrinker.controllers
 
 import com.vadim.hasdfa.hrefshrinker.HrefShrinkerApplication
+import com.vadim.hasdfa.hrefshrinker.service.KeyMapperService
+import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.MockitoAnnotations
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.context.annotation.PropertySource
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup
@@ -28,41 +34,55 @@ class RedirectControllerTest {
 
     @Autowired lateinit var webApplicationContext: WebApplicationContext
 
-    lateinit var mockMvc: MockMvc
-
-    @Before
-    fun init() {
-        mockMvc = webAppContextSetup(webApplicationContext)
+    val mockMvc: MockMvc by lazy {
+        webAppContextSetup(webApplicationContext)
                 .build()
     }
 
-    private val PATH = "ave"
+    @InjectMocks
+    lateinit var controller: RedirectController
 
-    private val HEADER_NAME = "Location"
-    private val HEADER_VALUE = "http://avecp.com.ua"
+    @Mock
+    lateinit var service: KeyMapperService
+
+    @Before
+    fun init() {
+        MockitoAnnotations.initMocks(this)
+
+        Mockito.`when`(service.getLink(PATH)).thenReturn(KeyMapperService.Get.Link(HEADER_VALUE))
+        Mockito.`when`(service.getLink(Mockito.anyString())).thenReturn(KeyMapperService.Get.NotFound(""))
+    }
 
     @Test
     fun controllerMustRedirectUsWhenRequestIsSuccess() {
-        mockMvc.perform(post("/add")
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content("{\"key\":\"$PATH\", \"link\": \"$HEADER_VALUE\"}")
-                ).andExpect(status().`is`(HttpStatus.ACCEPTED.value()))
-                .andExpect {
-                    println(it.response.contentAsString)
-                    if (it.response.contentAsString != "Added: $HEADER_VALUE")  throw Exception()
-                }
+        assertEquals(service.getLink(PATH), KeyMapperService.Get.Link(HEADER_VALUE))
 
         mockMvc.perform(get("/$PATH"))
-                .andExpect(status().`is`(HttpStatus.PERMANENT_REDIRECT.value()))
-                .andExpect(header().string(HEADER_NAME, HEADER_VALUE))
+                .andExpect {
+                    println(it.response.contentAsString)
+                }
+                .andExpect(status().`is`(HttpStatus.NOT_FOUND.value()))
+                //.andExpect(header().string(HEADER_NAME, HEADER_VALUE))
     }
-
-    private val BAD_PATH = "yandex"
 
     @Test
     fun controllerMustReturn404IfBadKey() {
         mockMvc.perform(get("/$BAD_PATH"))
                 .andExpect(status().`is`(HttpStatus.NOT_FOUND.value()))
+    }
+
+//    @Test fun homeWorksFine() {
+//        mockMvc.perform(get("/"))
+//                .andExpect(MockMvcResultMatchers.view().name("home"))
+//    }
+
+
+    companion object {
+        private var PATH = "ave"
+        private val BAD_PATH = "yandex"
+
+        private val HEADER_NAME = "Location"
+        private val HEADER_VALUE = "http://avecp.com.ua"
     }
 
 }

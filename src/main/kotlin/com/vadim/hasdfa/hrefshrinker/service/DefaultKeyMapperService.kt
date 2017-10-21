@@ -1,63 +1,48 @@
 package com.vadim.hasdfa.hrefshrinker.service
 
 
-import com.vadim.hasdfa.hrefshrinker.service.KeyMapperService.Add
+import com.vadim.hasdfa.hrefshrinker.model.Link
+import com.vadim.hasdfa.hrefshrinker.model.repositories.LinkRepository
 import com.vadim.hasdfa.hrefshrinker.service.KeyMapperService.Get
-import com.vadim.hasdfa.hrefshrinker.service.KeyMapperService.Add.*
-import com.vadim.hasdfa.hrefshrinker.service.KeyMapperService.Get.*
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import java.io.*
-import java.util.*
+import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.atomic.AtomicLong
+import javax.annotation.PostConstruct
 
 /**
  * Created by rakshavadim on 20.10.2017.
  */
 @Component
 class DefaultKeyMapperService: KeyMapperService {
-    final var urls = hashMapOf<String, String>()
 
-    init {
-        try {
-            val scanner = Scanner(File("data.txt"))
-            while (scanner.hasNext()) {
-                val str = scanner.nextLine().split(":")
-                val key = str[0]
-                val link = str[1]
-
-                urls.put(key, link)
-            }
-            scanner.close()
-        } catch (io: IOException) {
-            io.printStackTrace()
-        }
-    }
-    override fun add(key: String, link: String): Add {
-        return if (urls.containsKey(key))
-            AlreadyExist(key)
-        else {
-            urls.put(key, link)
-            Success(key, link)//.also { writeToFileAsync(key, link) }
-        }
+    private val repository: LinkRepository by lazy {
+        LinkRepository()
     }
 
-//    private fun writeToFileAsync(key: String, link: String) {
-//        thread {
-//            try {
-//                val os = OutputStreamWriter(FileOutputStream(File("data.txt"), true))
-//                os.write("\"$key\":\"$link\"\n")
-//                os.flush()
-//                os.close()
-//            } catch (io: IOException) {
-//                io.printStackTrace()
-//            }
-//        }
-//    }
+    val converter: KeyConverterService by lazy {
+        DefaultKeyConverterService()
+    }
 
+    val sequence = AtomicLong(10000000L)
+
+    @Transactional
+    override fun add(link: String): String {
+        val id = sequence.getAndIncrement()
+        val key = converter.idToKey(id)
+
+        repository.insert(Link(link, id))
+        return key
+    }
+
+    @Transactional
     override fun getLink(key: String): Get {
-        return if (urls.containsKey(key))
-            Link(urls[key]!!)
+        val result = repository.findById(converter.keyToId(key))
+
+        return if (result.isPresent)
+            KeyMapperService.Get.Link(result.get().link)
         else
-            NotFound(key)
+            KeyMapperService.Get.NotFound(key)
     }
 }
 
